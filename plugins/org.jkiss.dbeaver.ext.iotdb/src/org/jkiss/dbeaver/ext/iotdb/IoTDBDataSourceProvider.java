@@ -19,6 +19,7 @@ package org.jkiss.dbeaver.ext.iotdb;
 
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
+import org.jkiss.dbeaver.Log;
 import org.jkiss.dbeaver.ext.generic.GenericDataSourceProvider;
 import org.jkiss.dbeaver.ext.iotdb.model.IoTDBDataSource;
 import org.jkiss.dbeaver.ext.iotdb.model.meta.IoTDBMetaModel;
@@ -33,6 +34,8 @@ import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.utils.CommonUtils;
 
 public class IoTDBDataSourceProvider extends GenericDataSourceProvider {
+
+    private static final Log log = Log.getLog(IoTDBDataSourceProvider.class);
 
     @NotNull
     @Override
@@ -83,6 +86,15 @@ public class IoTDBDataSourceProvider extends GenericDataSourceProvider {
         return url.toString();
     }
 
+    private String processUrl(String url) {
+        String processedUrl = url;
+        int index = url.indexOf("?");
+        if (index > 0 && url.charAt(index - 1) == '/') {
+            processedUrl = url.substring(0, index - 1).concat(url.substring(index));
+        }
+        return processedUrl;
+    }
+
     @NotNull
     @Override
     public String getConnectionURL(
@@ -90,14 +102,14 @@ public class IoTDBDataSourceProvider extends GenericDataSourceProvider {
         @NotNull DBPConnectionConfiguration connectionInfo) {
         String urlTemplate = driver.getSampleURL();
         if (useRawUrl(connectionInfo)) {
-            return connectionInfo.getUrl();
+            return processUrl(connectionInfo.getUrl());
         }
         if (CommonUtils.isEmptyTrimmed(urlTemplate)) {
             return connectionInfo.getUrl();
         }
 
         try {
-            return buildUrlFromTemplate(connectionInfo, urlTemplate);
+            return processUrl(buildUrlFromTemplate(connectionInfo, urlTemplate));
         } catch (DBException e) {
             log.error(e);
             return null;

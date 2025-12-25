@@ -39,8 +39,11 @@ import org.jkiss.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class PrivilegeTableControl extends Composite {
+
+    private static final Log log = Log.getLog(STMLoggingErrorListener.class);
 
     private TableViewer tableViewer;
     private ViewerColumnController<Object, Object> columnsController;
